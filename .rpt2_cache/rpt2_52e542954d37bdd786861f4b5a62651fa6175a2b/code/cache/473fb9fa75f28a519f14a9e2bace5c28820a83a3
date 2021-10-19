@@ -1,0 +1,9 @@
+{
+  "code": "import GameUI from \"./script/GameUI\";\r\nimport GameControl from \"./script/GameControl\";\r\nimport Bullet from \"./script/Bullet\";\r\nimport DropBox from \"./script/DropBox\";\r\nexport default class GameConfig {\r\n    constructor() {\r\n    }\r\n    static init() {\r\n        var reg = Laya.ClassUtils.regClass;\r\n        reg(\"script/GameUI.ts\", GameUI);\r\n        reg(\"script/GameControl.ts\", GameControl);\r\n        reg(\"script/Bullet.ts\", Bullet);\r\n        reg(\"script/DropBox.ts\", DropBox);\r\n    }\r\n}\r\nGameConfig.width = 640;\r\nGameConfig.height = 1136;\r\nGameConfig.scaleMode = \"fixedwidth\";\r\nGameConfig.screenMode = \"none\";\r\nGameConfig.alignV = \"top\";\r\nGameConfig.alignH = \"left\";\r\nGameConfig.startScene = \"test/TestScene.scene\";\r\nGameConfig.sceneRoot = \"\";\r\nGameConfig.debug = false;\r\nGameConfig.stat = false;\r\nGameConfig.physicsDebug = false;\r\nGameConfig.exportSceneToJson = true;\r\nGameConfig.init();\r\n",
+  "references": [
+    "E:/mylaya/testgame/src/script/GameUI.ts",
+    "E:/mylaya/testgame/src/script/GameControl.ts",
+    "E:/mylaya/testgame/src/script/Bullet.ts",
+    "E:/mylaya/testgame/src/script/DropBox.ts"
+  ]
+}

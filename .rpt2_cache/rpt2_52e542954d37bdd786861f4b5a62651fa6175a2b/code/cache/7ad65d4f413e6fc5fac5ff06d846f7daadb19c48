@@ -1,0 +1,4 @@
+{
+  "code": "export default class Bullet extends Laya.Script {\r\n    constructor() { super(); }\r\n    onEnable() {\r\n        var rig = this.owner.getComponent(Laya.RigidBody);\r\n        rig.setVelocity({ x: 0, y: -10 });\r\n    }\r\n    onTriggerEnter(other, self, contact) {\r\n        this.owner.removeSelf();\r\n    }\r\n    onUpdate() {\r\n        if (this.owner.y < -10) {\r\n            this.owner.removeSelf();\r\n        }\r\n    }\r\n    onDisable() {\r\n        Laya.Pool.recover(\"bullet\", this.owner);\r\n    }\r\n}\r\n",
+  "references": []
+}
