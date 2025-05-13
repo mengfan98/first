@@ -1,0 +1,15 @@
+Shallow Size（浅层大小）：
+这是对象本身占用的内存大小，不包括它引用的其他对象。例如，一个数组对象的 Shallow Size 只包括数组本身的结构（如长度、索引等），而不包括数组中存储的元素。
+
+Retained Size（保留大小）：
+这是对象及其所有直接或间接引用的对象占用的内存总和。例如，如果一个数组对象引用了多个字符串对象，那么 Retained Size 包括数组本身的大小以及所有字符串对象的大小。
+
+例如：
+const objA = { name: "A" };
+const objB = { name: "B", ref: objA };
+objA 的 Shallow Size 是它本身占用的内存大小。
+objB 的 Shallow Size 是它本身占用的内存大小。
+objB 的 Retained Size 是 objB 本身的大小加上 objA 的大小，因为 objB 引用了 objA。
+
+Retained Size 是一个对象及其所有引用链上的对象占用的内存总和。
+它帮助开发者理解哪些对象占用了大量内存，以及如果释放某个对象后，可以回收多少内存。

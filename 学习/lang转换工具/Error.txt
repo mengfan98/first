@@ -1,0 +1,5 @@
+E:\pro\cq1.0\client\Dev\project\src\model\bag\BagModel.ts
+第310行疑似异常，请检查： LangId.B_1681 : LangId.A_113;
+第312行疑似异常，请检查：Lang(id, data.diamon, data.diamon, val
+第310行疑似异常，请检查： LangId.B_1681 : LangId.A_113
+第332行疑似异常，请检查：Lang(id, chargeConfig.diamond, chargeConfig.diamond, val)

@@ -1,0 +1,45 @@
+开始释放
+1、MainRole调用UseRunesSkill，并带参index
+2、选中目标，设置角色为战斗状态
+3、调用usePrepareSkill，预设释放技能id
+4、设置下一个技能的索引
+
+character每一帧调用updateActionLogic
+1、执行动作列表
+2、无动作列表，则判断角色是否为战斗状态；如果是，执行tryAttackObj，设置技能释放时模型，同时取消坐骑状态；使用预设技能(调用     C2S_128_12，同时设置技能cd)，并添加一个起手攻击动作；不是则设为站立状态
+3、S2C_128_12 技能广播返回，主要处理施法特效和被施法特效、震屏特效等。
+4、执行攻击动作，并添加一个连击动作类型，同时取消采集状态。
+5、执行连击动作，调用MainRole中doUseRunes。如果当前连击索引等于连击列表长度，则连击结束；不是则使用下一个连击索引，继续调用     UseRunesSkill
+6、连击结束时，发送C2S_128_29结束连击，并添加一个等待动作，同时设置连击索引为初始；
+7、S2C_128_29 连击结束返回，强制清空所有动作，还原角色模型，并添加一个等待动作；
+8、等待动作执行完成后下一帧执行updateActionLogic时，角色变站立状态。
+
+特殊的战士连击，返回S2C_128_9，为冲刺技能。施法者向前冲刺，被施法者向后退
+
+---------------------------------------------------------------------------------------------------------------------
+详解：
+gameScene中初始化一个帧计时器，每帧调用update方法(有执行用户键盘的操作，例如wasd控制主角的移动；然后遍历所有的场景对象sceneObj，每个场景对象执行对象属性上的update方法)
+
+character继承sceneObj，主要管理存储或执行角色的动作状态、显示特定buff效果。提供两个公用接口，appendMainAction和appendConcatAction，用于存储角色动作列表，一个存独立动作(例如走，站立)，一个存连续动作(例如连击、十步一杀)。此类中每一帧调用updateActionLogic，连续动作会先执行然后再执行独立动作；设计的原因，是需要在连续动作中最后执行完成一个wait动作，再执行站立的动作，使一系列动作更加连贯
+
+MainRole继承Role，Role继承character，Role构造时会预设动作列表，如连击技能-doUseRunes；MainRole中重写了doUseRunes
+
+当连击技能释放时，MainRole调用UseRunesSkill，并带参index，表示连击技能列表里的某一个。此方法中会选中攻击目标并设置当前角色状态为战斗状态，然后预设即将要释放的技能--setPrepareSkillId，并设置下一个连击技能下标索引useRunesIndex；然后在character每一帧调用的updateActionLogic中调用MainRole的updateIdle(此方法会先判断是否已经在连击过程中，如果是则继续调用UseRunesSkill，使用连击列表中的下一个技能；如果不是，即准备释放连击，调用tryAttackObj，判断施法范围，如果在范围内则调用useSkill)；
+
+useSkill，带参数--释放对象、技能id、人物朝向、攻击点；
+筛选出部分条件不可以使用技能(主角处于某些特定状态--如变羊、渡劫状态、钓鱼状态等；某些副本攻击怪物时是否拥有足够道具)；
+过滤后，连击技能有技能模型则设置主角模型id--setValue(AttrsType.SkillShowBodyModel)，并记录设置主角模型id的时间specailSkillBodyTime，当前时间与设置模型时间超过一定时长后就需要还原至默认模型状态；
+如果有坐骑，则向后端取消坐骑战斗状态(C2S_116_6)；
+后调用SkillModel.useSkill，传入参数-技能id、目标对象handle、目标位置、朝向dir(请求C2S_128_12，同时设置当前技能id的持续cd时长)；
+接着向appendMainAction添加一个攻击动作到动作列表中(包括了技能等级，技能id和朝向)，并执行MainRole中的doAtk；
+至此当前技能释放的所有条件已设置完成，接着判断预设的技能prepareSkillId等于当前使用的技能id的话，重设prepareSkillId为-1；
+
+S2C_128_12(后端返回技能广播)，包括技能id、释放朝向、目标实体handle、技能来源实体handle；主要处理施法特效和被施法特效;
+
+MainRole中的doAtk，如果是连击技能，执行Character.doAtk(此方法调用refreshAnimation，刷新每一个实体的动画状态)，判断useRunesIndex是否为-1，如果不是则表示释放连击已完成，执行最后一个等待动作，如果是则继续添加连击动作的类型；后取消采集状态；
+
+连击动作执行调用doUseRunes，如果useRunesIndex等于连击技能列表长度，发送C2S_128_29连击结束，设置角色为等待状态，useRunesIndex设-1；
+
+S2C_128_29返回连击结束，还原角色为默认模型
+S2C_128_9返回连击中的冲刺动作，施法者向前冲刺，被施法者向后退
+
